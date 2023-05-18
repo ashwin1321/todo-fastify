@@ -39,8 +39,37 @@ const createTodo = async (request, reply) => {
     }
 };
 
+
+// update a todo
+const updateTodo = async (request, reply) => {
+    try {
+        const { id } = request.params;
+        const { title, completed } = request.body;
+        const connection = await pool.promise().getConnection(); // Acquire a connection from the pool
+        const query = 'UPDATE todos SET title = ?, completed = ? WHERE id = ?';
+        const [result] = await connection.query(query, [title, completed, id]); // Execute the query on the connection
+        connection.release(); // Release the connection back to the pool
+
+        if (!result.affectedRows) {
+            return reply.code(404).send('Todo not found');
+        }
+
+        const updatedTodo = {
+            id,
+            title,
+            completed
+        };
+        reply.code(200).send(updatedTodo);
+    } catch (error) {
+        console.error('Error executing the query', error);
+        reply.code(500).send('Internal Server Error');
+    }
+};
+
+
 module.exports = {
     createTodo,
-    getTodos
+    getTodos,
+    updateTodo
 };
 
