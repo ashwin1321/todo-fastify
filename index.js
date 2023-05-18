@@ -1,7 +1,11 @@
 const fastify = require('fastify')({ logger: true });
 const db = require('./config/config');
+const todoRoutes = require('./routes/todoRoutes');
 
+// register routes
+fastify.register(todoRoutes);
 
+// start the server
 db.then(() => {
     fastify.listen({ port: 3000 }, (err) => {
         if (err) {
