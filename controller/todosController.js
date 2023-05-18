@@ -67,9 +67,31 @@ const updateTodo = async (request, reply) => {
 };
 
 
+// delete a todo
+const deleteTodo = async (request, reply) => {
+    try {
+        const { id } = request.params;
+        const connection = await pool.promise().getConnection(); // Acquire a connection from the pool
+
+        const query = 'DELETE FROM todos WHERE id = ?';
+        const [result] = await connection.query(query, [id]); // Execute the query on the connection
+        connection.release(); // Release the connection back to the pool
+
+        if (result.affectedRows === 0) {
+            return reply.code(404).send('Todo not found');
+        }
+        reply.code(200).send('Todo deleted successfully');
+    } catch (error) {
+        console.error('Error executing the query', error);
+        reply.code(500).send('Internal Server Error');
+    }
+};
+
+
 module.exports = {
     createTodo,
     getTodos,
-    updateTodo
+    updateTodo,
+    deleteTodo
 };
 
