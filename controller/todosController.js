@@ -18,6 +18,29 @@ const getTodos = async (request, reply) => {
     }
 };
 
+
+// Create a new todo
+const createTodo = async (request, reply) => {
+    try {
+        const { title, completed } = request.body;
+        const connection = await pool.promise().getConnection(); // Acquire a connection from the pool
+        const query = 'INSERT INTO todos (title, completed) VALUES (?, ?)';
+        const [result] = await connection.query(query, [title, completed]); // Execute the query on the connection
+        connection.release(); // Release the connection back to the pool
+        const createdTodo = {
+            id: result.insertId,
+            title,
+            completed
+        };
+        reply.code(201).send(createdTodo);
+    } catch (error) {
+        console.error('Error executing the query', error);
+        reply.code(500).send('Internal Server Error');
+    }
+};
+
 module.exports = {
+    createTodo,
     getTodos
 };
+
