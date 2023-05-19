@@ -16,10 +16,8 @@ const registerUser = async (request, reply) => {
         if (existingUser.length) {
             return reply.code(409).send('User already exists');
         }
-        console.log(`ya samma aayo 1`)
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        console.log(`ya samma aayo 2`)
 
         const query = 'INSERT INTO todouser (email, password) VALUES (?, ?)';
         const [rows] = await connection.query(query, [email, hashedPassword]); // Execute the query on the connection
