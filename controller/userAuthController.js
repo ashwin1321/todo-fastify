@@ -22,9 +22,7 @@ const registerUser = async (request, reply) => {
         const query = 'INSERT INTO todouser (email, password) VALUES (?, ?)';
         const [rows] = await connection.query(query, [email, hashedPassword]); // Execute the query on the connection
 
-        const user = { id: rows.insertId, email };
-        const token = jwt.sign(user, "mySecretKey");
-        reply.code(201).send({ token });
+        reply.code(201).send("user register successfully");
 
     } catch (error) {
         console.log('Error executing the query', error)
@@ -37,7 +35,43 @@ const registerUser = async (request, reply) => {
     }
 }
 
+const loginUser = async (request, reply) => {
+    const connection = await pool.promise().getConnection(); // Acquire a connection from the pool
+
+    try {
+
+        const { email, password } = request.body;
+
+        const query = 'SELECT * FROM todouser WHERE email = ?';
+        const [rows] = await connection.query(query, [email]); // Execute the query on the connection
+
+        if (!rows.length) {
+            return reply.code(401).send('user not found');
+        }
+
+        const user = rows[0];
+        const isPasswordCorrect = await bcrypt.compare(password, user.password);
+        if (!isPasswordCorrect) {
+            return reply.code(401).send('Incorrect password');
+        }
+
+        // generate token
+        const token = jwt.sign({ id: user.id }, "mySecretKey");
+        reply.code(200).send({ token });
+
+    } catch (error) {
+        console.error('Error executing the query', error)
+        reply.code(500).send('Internal Server Error')
+    }
+    finally {
+        if (connection) {
+            connection.release();
+        }
+    }
+}
+
 
 module.exports = {
-    registerUser
+    registerUser,
+    loginUser
 };
