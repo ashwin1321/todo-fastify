@@ -39,14 +39,13 @@ const loginUser = async (request, reply) => {
     const connection = await pool.promise().getConnection(); // Acquire a connection from the pool
 
     try {
-
         const { email, password } = request.body;
 
         const query = 'SELECT * FROM todouser WHERE email = ?';
         const [rows] = await connection.query(query, [email]); // Execute the query on the connection
 
         if (!rows.length) {
-            return reply.code(401).send('user not found');
+            return reply.code(401).send('User not found');
         }
 
         const user = rows[0];
@@ -55,21 +54,22 @@ const loginUser = async (request, reply) => {
             return reply.code(401).send('Incorrect password');
         }
 
-        // generate token
-        const token = jwt.sign({ id: user.id }, "mySecretKey");
-        reply.code(200).send({ token });
+        // Generate access token
+        const accessToken = jwt.sign({ id: user.id }, "mySecretKey", { expiresIn: '5s' });
 
+        // Generate refresh token
+        const refreshToken = jwt.sign({ id: user.id }, "refreshSecretKey", { expiresIn: '1h' });
+
+        reply.code(200).send({ accessToken, refreshToken });
     } catch (error) {
-        console.error('Error executing the query', error)
-        reply.code(500).send('Internal Server Error')
-    }
-    finally {
+        console.error('Error executing the query', error);
+        reply.code(500).send('Internal Server Error');
+    } finally {
         if (connection) {
             connection.release();
         }
     }
-}
-
+};
 
 module.exports = {
     registerUser,
