@@ -18,7 +18,7 @@ const validateUserLogin = async (request, reply, done) => {
         }
     } catch (accessTokenError) {
         try {
-            const refreshToken = request.headers['refresh-token']; // Get the refresh token from the header
+            const refreshToken = request.headers['refresh-token']; // Get the refresh token from the headerw
 
             if (!refreshToken) {
                 reply.code(401).send('Unauthorized');
