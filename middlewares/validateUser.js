@@ -1,22 +1,24 @@
 const jwt = require('jsonwebtoken');
+const fastifyPlugin = require('fastify-plugin');
 
-const validateUser = async (req, res, next) => {
+const validateUserLogin = async (request, reply, done) => {
     try {
-        const token = req.headers.authorization;
-        console.log(token)     // get the token from the header
+        const token = request.headers.authorization;   // Get the token from header
 
         if (!token) {
-            return res.status(401).send("Unauthorized");
+            reply.code(401).send("Unauthorized");
+            return;
         }
 
-        const validToken = jwt.verify(token, "mySecretKey");           // verify the token
+        const validToken = jwt.verify(token, "mySecretKey"); // Verify the token
         if (validToken) {
-            next();
+            done();
         }
     } catch (error) {
         console.error("Error validating user", error);
-        res.status(401).send("Unauthorized");
+        reply.code(401).send("Unauthorized");
     }
+};
 
-}
+const validateUser = fastifyPlugin(validateUserLogin);
 module.exports = validateUser;
