@@ -21,7 +21,7 @@ const registerUser = async (request, reply) => {
     const query = "INSERT INTO todouser (email, password) VALUES (?, ?)";
     const [rows] = await connection.query(query, [email, hashedPassword]); // Execute the query on the connection
 
-    reply.code(201).send("user register successfully");
+    reply.code(201).send("User registered successfully");
   } catch (error) {
     console.log("Error executing the query", error);
     reply.code(500).send("Internal Server Error");
@@ -51,17 +51,10 @@ const loginUser = async (request, reply) => {
       return reply.code(401).send("Incorrect password");
     }
 
-    // Generate access token
-    const accessToken = jwt.sign({ id: user.id }, "mySecretKey", {
-      expiresIn: "5s",
-    });
+    // Store the user ID in the session
+    request.session.userId = user.id;
 
-    // Generate refresh token
-    const refreshToken = jwt.sign({ id: user.id }, "refreshSecretKey", {
-      expiresIn: "1h",
-    });
-
-    reply.code(200).send({ accessToken, refreshToken });
+    reply.code(200).send("Login successful");
   } catch (error) {
     console.error("Error executing the query", error);
     reply.code(500).send("Internal Server Error");
