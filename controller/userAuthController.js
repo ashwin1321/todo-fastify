@@ -65,7 +65,18 @@ const loginUser = async (request, reply) => {
   }
 };
 
+const logoutUser = async (request, reply) => {
+  try {
+    request.session = null;
+    reply.code(200).send("Logout successful");
+  } catch (error) {
+    console.error("Error logging out user", error);
+    reply.code(500).send("Internal Server Error");
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
+  logoutUser,
 };

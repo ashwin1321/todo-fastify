@@ -15,6 +15,7 @@ fastify.register(session, {
     secure: false, // set this to false for local development (unless you're using https)
     maxAge: 86400000, // 1 day in ms
   },
+  saveUninitialized: false,
 });
 
 // register routes
