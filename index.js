@@ -1,6 +1,6 @@
 const fastify = require("fastify")({ logger: true });
-const session = require("fastify-session");
 const fastifyCookie = require("@fastify/cookie");
+const session = require("@fastify/session");
 const { db } = require("./config/config");
 const todoRoutes = require("./routes/todoRoutes");
 const todoUser = require("./routes/todoUser");
